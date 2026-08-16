@@ -1,0 +1,36 @@
+{
+  "packages": {
+    "handwritten-blog": {
+      "maintenanceCommands": [
+        {
+          "id": "link",
+          "label": "Link handwritten.blog",
+          "description": "Show a one-time code and connect this tablet to one blog",
+          "command": "/home/root/.vellum/bin/handwritten-blog link",
+          "allowStop": true
+        },
+        {
+          "id": "send-notebook",
+          "label": "Send notebook",
+          "description": "Choose one local notebook and upload it as a private draft",
+          "command": "printf '%s\\n' 'Update reManager to use the handwritten.blog notebook picker.'",
+          "allowStop": true,
+          "hook": "handwritten_blog_notebook_select"
+        },
+        {
+          "id": "status",
+          "label": "Connection status",
+          "description": "Show whether this tablet is linked to handwritten.blog",
+          "command": "/home/root/.vellum/bin/handwritten-blog status"
+        },
+        {
+          "id": "unlink",
+          "label": "Unlink handwritten.blog",
+          "description": "Revoke and remove this tablet's upload-only credential",
+          "command": "printf '%s\\n' 'Update reManager to unlink handwritten.blog with confirmation.'",
+          "hook": "handwritten_blog_unlink_confirm"
+        }
+      ]
+    }
+  }
+}

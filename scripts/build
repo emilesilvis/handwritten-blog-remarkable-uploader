@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+task_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+task_version="${HANDWRITTEN_BLOG_VERSION:-$(tr -d '[:space:]' < "$task_root/VERSION")}"
+task_origin="${HANDWRITTEN_BLOG_ORIGIN:-https://handwritten.blog}"
+task_output="${1:-$task_root/dist/handwritten-blog-armv7}"
+
+mkdir -p "$(dirname "$task_output")"
+
+(
+  cd "$task_root"
+  CGO_ENABLED=0 GOOS=linux GOARCH=arm GOARM=7 go build \
+    -buildvcs=false -trimpath \
+    -ldflags="-s -w -X main.version=$task_version -X main.baseURL=$task_origin" \
+    -o "$task_output" .
+)
+
+shasum -a 256 "$task_output"
