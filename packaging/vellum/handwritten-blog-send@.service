@@ -1,0 +1,8 @@
+[Unit]
+Description=Send one reMarkable notebook to handwritten.blog
+After=network.target
+
+[Service]
+Type=oneshot
+ExecStart=/home/root/.vellum/bin/handwritten-blog ui-send %i
+Nice=10

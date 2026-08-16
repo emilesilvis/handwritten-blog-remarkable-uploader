@@ -85,6 +85,26 @@ func (app *application) run(ctx context.Context, arguments []string) error {
 			}
 		}
 		return app.sync(ctx, documentID)
+	case "ui-preflight":
+		if len(arguments) != 2 {
+			return errors.New("usage: handwritten-blog ui-preflight <document-uuid>")
+		}
+		return app.uiPreflight(strings.ToLower(arguments[1]), true)
+	case "ui-send":
+		if len(arguments) != 2 {
+			return errors.New("usage: handwritten-blog ui-send <document-uuid>")
+		}
+		return app.uiSend(ctx, strings.ToLower(arguments[1]))
+	case "ui-result":
+		if len(arguments) != 2 {
+			return errors.New("usage: handwritten-blog ui-result <document-uuid>")
+		}
+		return app.uiResult(strings.ToLower(arguments[1]))
+	case "ui-ack":
+		if len(arguments) != 2 {
+			return errors.New("usage: handwritten-blog ui-ack <document-uuid>")
+		}
+		return app.uiAck(strings.ToLower(arguments[1]))
 	case "status":
 		if len(arguments) > 2 {
 			return errors.New("usage: handwritten-blog status [document-uuid]")

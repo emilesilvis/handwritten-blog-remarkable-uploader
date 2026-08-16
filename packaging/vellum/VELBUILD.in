@@ -1,22 +1,25 @@
 maintainer="handwritten.blog <hello@handwritten.blog>"
 pkgname=handwritten-blog
-pkgver=0.2.0
+pkgver=0.3.0
 pkgrel=0
-upstream_author="handwritten.blog"
+upstream_author="emilesilvis"
 category="utilities"
 pkgdesc="Upload one explicitly selected reMarkable notebook as a private handwritten.blog draft"
-url="https://github.com/emilesilvis/handwritten-blog-uploader"
+url="https://github.com/emilesilvis/handwritten-blog-remarkable-uploader"
 arch="armv7"
 license="MIT"
-readmeurl="https://raw.githubusercontent.com/emilesilvis/handwritten-blog-uploader/v$pkgver/README.md"
-depends="!rm1 !rmpp !rmppm !rmppure remarkable-os>=3.28.0.169 remarkable-os<3.28.0.170"
+readmeurl="https://raw.githubusercontent.com/emilesilvis/handwritten-blog-remarkable-uploader/v$pkgver/README.md"
+depends="!rm1 !rmpp !rmppm !rmppure remarkable-os>=3.27 remarkable-os<3.28"
+subpackages="$pkgname-ui:ui"
 options="!fhs"
 
 source="
-$pkgname-uploader-$pkgver.tar.gz::https://github.com/emilesilvis/handwritten-blog-uploader/archive/refs/tags/v$pkgver.tar.gz
+$pkgname-uploader-$pkgver.tar.gz::https://github.com/emilesilvis/handwritten-blog-remarkable-uploader/archive/refs/tags/v$pkgver.tar.gz
 "
+builddir="$srcdir/handwritten-blog-remarkable-uploader-$pkgver"
 
 image="ghcr.io/toltec-dev/golang:v4.0"
+systemdunits="packaging/vellum/handwritten-blog-send@.service"
 
 build() {
 	cd "$builddir"
@@ -41,6 +44,23 @@ package() {
 		"$pkgdir/home/root/.vellum/licenses/$pkgname/SOURCES"
 }
 
+ui() {
+	category="ui"
+	pkgdesc="Add Send to handwritten.blog to the open-notebook menus"
+	license="GPL-3.0-only"
+	depends="$pkgname=$pkgver-r$pkgrel qt-resource-rebuilder>=17 qt-command-executor remarkable-os>=3.27 remarkable-os<3.28"
+
+	package() {
+		cd "$builddir"
+		install -Dm644 ui/3.27/sendToHandwrittenBlog.qmd \
+			"$subpkgdir/home/root/xovi/exthome/qt-resource-rebuilder/sendToHandwrittenBlog.qmd"
+		install -Dm644 ui/LICENSE \
+			"$subpkgdir/home/root/.vellum/licenses/$pkgname-ui/LICENSE"
+		echo "$url/tree/v$pkgver/ui" > \
+			"$subpkgdir/home/root/.vellum/licenses/$pkgname-ui/SOURCES"
+	}
+}
+
 predeinstall() {
 	if [ "$VELLUM_PURGE" = "1" ]; then
 		/home/root/.vellum/bin/handwritten-blog unlink || \
@@ -56,5 +76,5 @@ postdeinstall() {
 }
 
 sha512sums="
-@SOURCE_SHA512@  handwritten-blog-uploader-0.2.0.tar.gz
+@SOURCE_SHA512@  handwritten-blog-uploader-0.3.0.tar.gz
 "
