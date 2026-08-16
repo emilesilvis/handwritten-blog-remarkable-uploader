@@ -5,15 +5,15 @@ pkgrel=0
 upstream_author="handwritten.blog"
 category="utilities"
 pkgdesc="Upload one explicitly selected reMarkable notebook as a private handwritten.blog draft"
-url="https://github.com/emilesilvis/handwritten-blog-uploader"
+url="https://github.com/emilesilvis/handwritten-blog-remarkable-uploader"
 arch="armv7"
 license="MIT"
-readmeurl="https://raw.githubusercontent.com/emilesilvis/handwritten-blog-uploader/v$pkgver/README.md"
+readmeurl="https://raw.githubusercontent.com/emilesilvis/handwritten-blog-remarkable-uploader/v$pkgver/README.md"
 depends="!rm1 !rmpp !rmppm !rmppure remarkable-os>=3.28.0.169 remarkable-os<3.28.0.170"
 options="!fhs"
 
 source="
-$pkgname-uploader-$pkgver.tar.gz::https://github.com/emilesilvis/handwritten-blog-uploader/archive/refs/tags/v$pkgver.tar.gz
+$pkgname-uploader-$pkgver.tar.gz::https://github.com/emilesilvis/handwritten-blog-remarkable-uploader/archive/refs/tags/v$pkgver.tar.gz
 "
 
 image="ghcr.io/toltec-dev/golang:v4.0"
