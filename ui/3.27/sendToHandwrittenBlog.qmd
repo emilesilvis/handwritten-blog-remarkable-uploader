@@ -1,0 +1,161 @@
+; handwritten.blog
+; SPDX-License-Identifier: GPL-3.0-only
+; Adds a confirmed send action to the open-notebook menus on reMarkable OS 3.27.
+;
+; Requires: qt-command-executor
+;           handwritten-blog
+
+AFFECT [[11313888899523275277]]
+    IMPORT net.asivery.CommandExecutor [[180922.180921]]
+
+    TRAVERSE [[8397993708429497603]]#[[6504254477]]
+        LOCATE BEFORE ALL
+        INSERT {
+            property ~&7083178290016&~ handwrittenBlogConfirmUuid: ""
+
+            CommandExecutor {
+                ~&5972374&~: handwrittenBlogExecutor
+            }
+
+            ~&214604601930&~ {
+                ~&5972374&~: handwrittenBlogConfirmTimer
+                ~&7713147298280334&~: 8000
+                ~&495358363329399331&~: handwrittenBlogConfirmUuid = ""
+            }
+
+            ~&214604601930&~ {
+                ~&5972374&~: handwrittenBlogResultPoller
+                ~&7713147298280334&~: 1500
+                ~&7083121289162&~: ~&6504329801&~
+                ~&233743626668842&~: ~&6504329801&~
+                ~&495358363329399331&~: handwrittenBlogPollResult()
+            }
+
+            function handwrittenBlogNotify(message) {
+                ~&14825814810595278773&~.~&233726567442689&~({
+                    ~&"6504315758&~: message
+                });
+            }
+
+            function handwrittenBlogCurrentUuid() {
+                ~&7083121450889&~ ~&7712934851008712&~ ? String(~&7712934851008712&~.~&5972374&~) : "";
+            }
+
+            function handwrittenBlogRun(command, args) {
+                try {
+                    ~&7083121450889&~ ~&6502785411&~.parse(handwrittenBlogExecutor.executeCommand(command, args));
+                } catch (~&180974&~) {
+                    ~&7083121450889&~ ({ stdout: "", stderr: "invalid command response" });
+                }
+            }
+
+            function handwrittenBlogPollResult() {
+                ~&197102514&~ uuid = handwrittenBlogCurrentUuid();
+                ~&5972376&~ (!uuid) ~&7083121450889&~;
+
+                ~&197102514&~ result = handwrittenBlogRun(
+                    "/home/root/.vellum/bin/handwritten-blog",
+                    ["ui-result", uuid]
+                );
+                ~&5972376&~ (result.stderr || !result.stdout) ~&7083121450889&~;
+
+                try {
+                    ~&197102514&~ status = ~&6502785411&~.parse(result.stdout);
+                    ~&5972376&~ (status.state === "idle") {
+                        handwrittenBlogResultPoller.~&233743626668842&~ = ~&214625660372&~;
+                    } ~&6503784146&~ ~&5972376&~ (status.state === "succeeded" || status.state === "failed") {
+                        handwrittenBlogNotify(status.message);
+                        handwrittenBlogRun(
+                            "/home/root/.vellum/bin/handwritten-blog",
+                            ["ui-ack", uuid]
+                        );
+                        handwrittenBlogResultPoller.~&233743626668842&~ = ~&214625660372&~;
+                    }
+                } catch (~&180974&~) {
+                    handwrittenBlogResultPoller.~&233743626668842&~ = ~&214625660372&~;
+                }
+            }
+
+            function handwrittenBlogSendAction() {
+                ~&197102514&~ uuid = handwrittenBlogCurrentUuid();
+                ~&5972376&~ (!uuid) {
+                    handwrittenBlogNotify(~&6504222003&~("Open a notebook before sending it."));
+                    ~&7083121450889&~;
+                }
+
+                ~&197102514&~ preflight = handwrittenBlogRun(
+                    "/home/root/.vellum/bin/handwritten-blog",
+                    ["ui-preflight", uuid]
+                );
+                ~&5972376&~ (preflight.stdout.~&6504329413&~() !== "ready") {
+                    handwrittenBlogNotify(~&6504222003&~("Could not send. Link handwritten.blog and try again."));
+                    handwrittenBlogConfirmUuid = "";
+                    ~&7083121450889&~;
+                }
+
+                ~&5972376&~ (handwrittenBlogConfirmUuid !== uuid) {
+                    handwrittenBlogConfirmUuid = uuid;
+                    handwrittenBlogConfirmTimer.~&233743006639214&~();
+                    handwrittenBlogNotify(~&6504222003&~("Tap Send again to confirm. The tablet UI will briefly restart."));
+                    ~&7083121450889&~;
+                }
+
+                handwrittenBlogConfirmUuid = "";
+                handwrittenBlogConfirmTimer.~&6504295855&~();
+                ~&197102514&~ launch = handwrittenBlogRun(
+                    "/bin/systemctl",
+                    ["start", "--no-block", "handwritten-blog-send@" + uuid + ".service"]
+                );
+                ~&5972376&~ (launch.stderr) {
+                    handwrittenBlogNotify(~&6504222003&~("Could not start the upload. Please try again."));
+                } ~&6503784146&~ {
+                    handwrittenBlogNotify(~&6504222003&~("Sending to handwritten.blog…"));
+                }
+            }
+        }
+    END TRAVERSE
+END AFFECT
+
+; Portrait notebook menu
+AFFECT [[11704595946725378272]]
+    TRAVERSE [[454089850271038938]]#[[6504254477]] > [[254480451320573660]]#[[16710723433319324941]] > [[14125623155555875541]]#[[233724020048228]]
+        LOCATE AFTER [[425121728314878811.15740235808997988493]]
+        INSERT {
+            ~&425121728314878811&~.~&432643201877711221&~ {
+                ~&214632764553&~: ~&6504254477&~.~&233745975898428&~.handwrittenBlogConfirmUuid === ~&6504254477&~.~&233745975898428&~.handwrittenBlogCurrentUuid()
+                    ? ~&6504222003&~("Tap again to send")
+                    : ~&6504222003&~("Send to handwritten.blog")
+                ~&8399601734642709923&~: ~&"7424592205469683787&~
+                ~&233748328658231&~: ~&6504254477&~.~&233745975898428&~.handwrittenBlogCurrentUuid() !== "" &&
+                         ~&6504254477&~.~&233745975898428&~.~&14953652214069020552&~.~&14593461789319363686&~
+                ~&254542236275632405&~: {
+                    ~&6504254477&~.~&233745975898428&~.handwrittenBlogSendAction();
+                    ~&6504254477&~.~&233745975898428&~.~&15738511857451076348&~();
+                }
+            }
+        }
+    END TRAVERSE
+END AFFECT
+
+; Landscape More Tools menu
+AFFECT [[6025599999262907645]]
+    TRAVERSE [[454089850271038938]]#[[6504254477]]
+        TRAVERSE [[14125623155555875541]]
+            LOCATE AFTER ALL
+            INSERT {
+                ~&425121728314878811&~.~&432643201877711221&~ {
+                    ~&214632764553&~: ~&6504254477&~.~&233745975898428&~.handwrittenBlogConfirmUuid === ~&6504254477&~.~&233745975898428&~.handwrittenBlogCurrentUuid()
+                        ? ~&6504222003&~("Tap again to send")
+                        : ~&6504222003&~("Send to handwritten.blog")
+                    ~&8399601734642709923&~: ~&"7424592205469683787&~
+                    ~&233748328658231&~: ~&6504254477&~.~&233745975898428&~.handwrittenBlogCurrentUuid() !== "" &&
+                             !~&6504254477&~.~&233745975898428&~.~&14953652214069020552&~.~&14593461789319363686&~
+                    ~&254542236275632405&~: {
+                        ~&6504254477&~.~&233745975898428&~.handwrittenBlogSendAction();
+                        ~&6504254477&~.~&233745975898428&~.~&15738511857451076348&~();
+                    }
+                }
+            }
+        END TRAVERSE
+    END TRAVERSE
+END AFFECT

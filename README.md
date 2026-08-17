@@ -37,6 +37,12 @@ Once the Vellum and reManager integrations are released, a user will:
 
 No signing key or terminal command should be part of the production flow.
 
+An optional, firmware-pinned UI package adds **Send to handwritten.blog** to
+the open-notebook menus. The first tap explains that the tablet UI will briefly
+restart; a second tap confirms the upload. This extension is intentionally
+separate from the uploader because QMD patches target private Xochitl internals
+and require stricter per-firmware testing. See [`ui`](ui).
+
 ## Security and privacy model
 
 The uploader runs locally with root access because that is how third-party
@@ -67,6 +73,12 @@ handwritten-blog status [document-uuid]
 handwritten-blog unlink
 handwritten-blog purge
 ```
+
+The UI package also uses four non-interactive bridge commands:
+`ui-preflight`, `ui-send`, `ui-result`, and `ui-ack`. They validate canonical
+UUIDs, transfer work to a system service that survives the Xochitl restart, and
+return a small versioned status record to the restarted UI. They are not part
+of the end-user command flow.
 
 `list --json` is the versioned, non-interactive notebook-selection contract
 used by reManager. Version 1 returns:
@@ -116,4 +128,6 @@ proposed reManager command metadata lives in
 
 ## License
 
-The uploader is available under the [MIT License](LICENSE).
+The uploader is available under the [MIT License](LICENSE). The optional QMD
+extension under [`ui`](ui) is GPL-3.0-only because it is built against the
+community Xovi/QMD extension ecosystem.
