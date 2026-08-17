@@ -35,6 +35,11 @@ Once the Vellum and reManager integrations are released, a user will:
 4. click **Send notebook** and choose one notebook; and
 5. review the resulting private draft on handwritten.blog.
 
+An uploaded RM2 notebook, including its handwritten annotations, arrives as a
+private draft ready for review:
+
+![A PDF-backed reMarkable notebook with handwritten annotations shown as a private handwritten.blog draft](docs/images/remarkable-uploaded-draft.png)
+
 No signing key or terminal command should be part of the production flow.
 
 An optional, firmware-pinned UI package adds **Send to handwritten.blog** to
